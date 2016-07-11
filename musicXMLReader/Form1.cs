@@ -29,17 +29,29 @@ namespace musicXMLReader
             {
                 string file = openMusicDialog.FileName;
 
-                myPiece = new Piece(file);
-
-                partsListBox.Items.Clear();
-
-                foreach (Part myPart in myPiece.PartList)
+                if (!String.Equals(Path.GetExtension(openMusicDialog.FileName), ".xml", StringComparison.OrdinalIgnoreCase))
                 {
-                    partsListBox.Items.Add(myPart.ID + " - " + myPart.Name);
+                    MessageBox.Show("Please select a valid Music XML file.", "Incompatible file type",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                else
+                {
+                    myPiece = new Piece(file);
+
+                    partsListBox.Items.Clear();
+
+                    foreach (Part myPart in myPiece.PartList)
+                    {
+                        partsListBox.Items.Add(myPart.ID + " - " + myPart.Name);
+                    }
+
+                    partsListBox.SelectedIndex = 0;
+                    copyButton.Enabled = true;
                 }
 
-                partsListBox.SelectedIndex = 0;
-                copyButton.Enabled = true;
+
+
             }
         }
 
