@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace musicXMLReader
 {
@@ -37,7 +38,8 @@ namespace musicXMLReader
                 }
                 else
                 {
-                    myPiece = new Piece(file);
+                    XDocument doc = XDocument.Load(file);
+                    myPiece = Piece.Create(doc);
 
                     partsListBox.Items.Clear();
 
@@ -50,8 +52,6 @@ namespace musicXMLReader
                     copyButton.Enabled = true;
                 }
 
-
-
             }
         }
 
@@ -59,7 +59,7 @@ namespace musicXMLReader
         {
             Part curPart = myPiece.PartList.ElementAt(partsListBox.SelectedIndex);
 
-            tempoBox.Text = curPart.Tempo.ToString();
+            //tempoBox.Text = curPart.Tempo.ToString();
             divisionBox.Text = curPart.Division.ToString();
 
             notesBox.Text = String.Join(", ", curPart.Notes);
@@ -71,16 +71,18 @@ namespace musicXMLReader
         private void copyButton_Click(object sender, EventArgs e)
         {
             Part curPart = myPiece.PartList.ElementAt(partsListBox.SelectedIndex);
-            StringBuilder sb = new StringBuilder();
-            string text = sb.AppendLine("const unsigned int " + nameBox.Text + "Notes[] PROGMEM =")
-                .AppendLine("{")
-                .AppendLine(String.Join(", ", curPart.Notes))
-                .AppendLine("};")
-                .AppendLine()
-                .AppendLine("const unsigned int " + nameBox.Text + "Times[] PROGMEM =")
-                .AppendLine("{")
-                .AppendLine(String.Join(", ", curPart.Times))
-                .AppendLine("};").ToString();
+
+            string text = $@"
+                |const unsigned int {nameBox.Text}Notes[] PROGMEM =
+                |{{
+                |   {String.Join(", ", curPart.Notes)}
+                |}};
+                |
+                |const unsigned int {nameBox.Text}Times[] PROGMEM =
+                |{{
+                |    {String.Join(", ", curPart.Times)}
+                |}};"
+                .StripLeadingWhitespace();
 
             Clipboard.SetText(text);
         }

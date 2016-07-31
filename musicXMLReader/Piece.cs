@@ -9,19 +9,23 @@ namespace musicXMLReader
 {
     class Piece
     {
-        public List<Part> PartList {get; set;}
+        public List<Part> PartList { get; set; } = new List<Part>();
 
-        public Piece(string file)
-        { 
-            List<Part> partList = new List<Part>();
+        public Piece()
+        {
 
-            XDocument doc = XDocument.Load(file);
+        }
+
+        public static Piece Create(XDocument doc)
+        {
+            Piece _piece = new Piece();
+
             foreach (var partElement in doc.Descendants("part"))
             {
-                partList.Add(new Part(file, partElement));
+                _piece.PartList.Add(Part.Create(doc, partElement));
             }
 
-            PartList = partList;
+            return _piece;
         }
     }
 }
